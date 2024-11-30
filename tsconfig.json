@@ -13,5 +13,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+, "app/LoginView.jsx", "app/MainView.jsx", "app/WheelView.jsx", "app/CreateRoomView.jsx", "app/GoalView.jsx", "app/ChoreView.jsx", "app/HomeView.jsx", "app/index.jsx"  ]
 }
