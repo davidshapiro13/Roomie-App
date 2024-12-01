@@ -1,5 +1,6 @@
 import { StyleSheet, Modal, Text, View, Button, Alert, TextInput } from 'react-native';
 import React, {useState} from 'react';
+import { database, addData, getData } from './Database';
 
 export default function CreateRoomView( { onClose }) {
     const [roomName, roomNameChanged] = useState('Room name')
@@ -20,12 +21,16 @@ export default function CreateRoomView( { onClose }) {
                 value={userName}
             />
 
-            <Button title="Submit" onPress={() => {submit({onClose})}}/>
+            <Button title="Submit" onPress={() => {submit({roomName, userName, onClose})}}/>
         </View>
     )
 }
 
-function submit({onClose}) {
+function submit({roomName, userName, onClose}) {
+    const data = {
+        'user' : userName 
+    }
+    addData(database, 'rooms/' + roomName + '/members/', data);
     onClose()
 }
 const styles = StyleSheet.create({

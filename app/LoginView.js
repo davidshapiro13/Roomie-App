@@ -2,14 +2,11 @@ import { StyleSheet, Modal, Text, View, Button, Alert } from 'react-native';
 import React, {useState} from 'react';
 import CreateRoomView from './CreateRoomView';
 import JoinRoomView from './JoinRoomView';
-import { firebase } from '@react-native-firebase/database';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs, addDoc } from 'firebase/firestore';
+import { database, addData, getData } from './Database';
 
 export default function LoginView() {
-    const reference = firebase
-        .app()
-        .database('https://roomie-2634a-default-rtdb.firebaseio.com/')
-        .ref('/rooms');
-
     const [createRoomOn, setCreateRoomOn] = useState(false)
     const [joinRoomOn, setJoinRoomOn] = useState(false)
     return (
@@ -17,7 +14,8 @@ export default function LoginView() {
             <Text>Roomie</Text>
             <Button title="Create Room" onPress={() => setCreateRoomOn(true)}/>
             <Button title="Join Room" onPress={() => setJoinRoomOn(true)}/>
-            
+            <Button title="Database" onPress={() => getData(database, 'cities')}/>
+            <Button title="Database" onPress={() => addData(database, 'cities', {'California' : 'Sacramento'})}/>
             <Modal animationType="slide"
                    transparent={false}
                    visible={createRoomOn}
@@ -39,6 +37,9 @@ export default function LoginView() {
         </View>
     )
 }
+
+
+
 
 const styles = StyleSheet.create({
     container: {
