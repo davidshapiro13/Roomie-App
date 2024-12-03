@@ -14,8 +14,7 @@ export default function LoginView() {
             <Text>Roomie</Text>
             <Button title="Create Room" onPress={() => setCreateRoomOn(true)}/>
             <Button title="Join Room" onPress={() => setJoinRoomOn(true)}/>
-            <Button title="Database" onPress={() => getData(database, 'cities')}/>
-            <Button title="Database" onPress={() => addData(database, 'cities', {'California' : 'Sacramento'})}/>
+
             <Modal animationType="slide"
                    transparent={false}
                    visible={createRoomOn}

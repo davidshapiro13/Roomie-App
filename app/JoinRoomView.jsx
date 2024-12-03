@@ -1,5 +1,6 @@
 import { StyleSheet, Modal, Text, View, Button, Alert, TextInput } from 'react-native';
 import React, {useState} from 'react';
+import { database, addData, getData, updateData, generateCode, setLoginStatus } from './Database';
 
 export default function JoinRoomView( { onClose }) {
     const [roomCode, roomCodeChanged] = useState('Room code')
@@ -20,13 +21,21 @@ export default function JoinRoomView( { onClose }) {
                 value={userName}
             />
 
-            <Button title="Submit" onPress={() => {submit({onClose})}}/>
+            <Button title="Submit" onPress={() => {submit({roomCode, userName, onClose})}}/>
         </View>
     )
 }
 
-function submit({onClose}) {
-    onClose()
+function submit({roomCode, userName, onClose}) {
+    getData(database, 'code-to-roomID').then( (data) => {
+        roomID = data[0][roomCode]
+        const memberData = {
+            [`members.${userName}`] : "FILL IN LATER"
+        }
+        updateData(database, 'rooms/' + roomID, memberData)
+        setLoginStatus(true)
+        onClose()
+    })
 }
 const styles = StyleSheet.create({
     container: {

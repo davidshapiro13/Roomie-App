@@ -1,6 +1,6 @@
 import { StyleSheet, Modal, Text, View, Button, Alert, TextInput } from 'react-native';
 import React, {useState} from 'react';
-import { database, addData, getData } from './Database';
+import { database, addData, getData, generateCode } from './Database';
 
 export default function CreateRoomView( { onClose }) {
     const [roomName, roomNameChanged] = useState('Room name')
@@ -28,11 +28,16 @@ export default function CreateRoomView( { onClose }) {
 
 function submit({roomName, userName, onClose}) {
     const data = {
-        'user' : userName 
+        "room_name" : roomName,
+        "members" : {[userName] : "FILL IN LATER"}
     }
-    addData(database, 'rooms/' + roomName + '/members/', data);
-    onClose()
+    addData(database, 'rooms/' , data).then((roomID) => {
+        addData(database, 'code-to-roomID', {[generateCode()] : roomID});
+    });
+    setLoginStatus(true);
+    onClose();
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,

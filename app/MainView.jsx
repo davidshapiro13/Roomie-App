@@ -5,7 +5,7 @@ import GoalView from './GoalView';
 import ChoreView from './ChoreView';
 import WheelView from './WheelView';
 
-export default function MainView() {
+export default function MainView( { logout } ) {
 
     const Tab = createBottomTabNavigator();
 

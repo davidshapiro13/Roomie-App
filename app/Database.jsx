@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, addDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
     apiKey: "AIzaSyCNuU3HvsJPY7oxo2_7q4O8I3YJyGGg-70",
@@ -10,6 +11,7 @@ const firebaseConfig = {
     appId: "1:757312119596:web:74fb7f0172492529480289",
     measurementId: "G-8X307H6FR6"
   };
+
   
 const app = initializeApp(firebaseConfig);
 export const database = getFirestore(app);
@@ -21,21 +23,70 @@ async function getDataFromFirebase(database, path) {
     return dataList;
 }
 
-export async function addData(database, path, dataObject) {
+export default async function addData(database, path, dataObject) {
     try {
       const dataRef = collection(database, path);
       const docRef = await addDoc(dataRef, dataObject);
       console.log('Document written with ID: ', docRef.id);
+      return docRef.id
     } catch (e) {
       console.error('Error adding document: ', e);
     }
   }
 
-export function getData(database, path) {
-    getDataFromFirebase(database, path).then(dataList => {
-        console.log('Data: ' + dataList);
-      }).catch(error => {
+  export async function updateData(database, path, dataObject) {
+    try {
+      const docRef = doc(database, path);
+      await updateDoc(docRef, dataObject)
+    } catch (e) {
+      console.error('Error adding document: ', e);
+    }
+  }
+
+export async function getData(database, path) {
+    returnedData = {"test" : "value"};
+    try {
+        const dataList = await getDataFromFirebase(database, path);
+        return dataList;
+    }
+    catch (error) {
         Alert.alert('Error fetching data: ' + error);
-    });
-    console.log("Success")
+        throw error;
+    }
+}
+
+export function generateCode() {
+    let codeLength = 5
+    result = ""
+    options = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    for (let i = 0; i < codeLength; i++) {
+        index = Math.floor(Math.random() * options.length)
+        result += options[index]
+    }
+    return result
+
+
+}
+
+export async function setLoginStatus(isLoggedIn) {
+  try {
+    await AsyncStorage.setItem('@isLoggedIn', JSON.stringify(isLoggedIn));
+  }
+  catch (error) {
+    console.error("Could not save login status");
+  }
+}
+
+export async function getLoggedInStatus() {
+  try {
+    const loggedIn = await AsyncStorage.getItem('@isLoggedIn');
+    if (loggedIn !== null) {
+      return JSON.parse(loggedIn);
+    }
+    return false
+  }
+  catch (error) {
+    console.error('Failed to find login info', error);
+    return false;
+  }
 }
