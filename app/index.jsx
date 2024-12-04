@@ -1,30 +1,36 @@
-import { StatusBar } from 'expo-status-bar';
+import './gesture-handler';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import React, { useState } from 'react';
 import LoginView from './LoginView';
 import MainView from './MainView';
-
-import { NavigationContainer } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLoggedInStatus } from './Database';
 
 function logout(loggedIn) {
   loggedIn = false
 }
 
+const Stack = createNativeStackNavigator()
+const Navigator = Stack.Navigator;
+const Screen = Stack.Screen;
+
 export default function Index() {
+
   const [loggedIn, setLoggedIn] = useState(getLoggedInStatus());
- 
-  if (loggedIn) {
-    return (
-        <MainView></MainView>
-    );
-  }
-  else {
-    return (
-      <LoginView></LoginView>
-    );
-  }
+
+  return (
+        <Navigator screenOptions={{ headerShown: false }}>
+          {loggedIn ? (
+            <Screen name = "Main">
+              {() => <MainView setLoggedIn={setLoggedIn}/>}
+            </Screen>
+            ) : (
+            <Screen name="Login">
+              {() => <LoginView setLoggedIn={setLoggedIn}/>}
+            </Screen>
+            )}
+        </Navigator>
+  )
 }
 
 

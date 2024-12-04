@@ -1,12 +1,12 @@
 import { StyleSheet, Text, View, Button } from 'react-native';
 import { setLoginStatus } from './Database'
 
-export default function HomeView() {
+export default function HomeView( { setLoggedIn } ) {
     return (
         <View style={styles.container}>
             <Text>Home</Text>
             <Button title="Log Out" onPress={() => {
-                setLoginStatus("false")
+                setLoggedIn(false)
             }
                 }></Button>
         </View>
