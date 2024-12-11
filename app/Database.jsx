@@ -1,6 +1,6 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+const { initializeApp } = require('firebase/app');
+const { getFirestore, collection, getDocs, addDoc, updateDoc, doc } = require('firebase/firestore');
+const AsyncStorage = require('@react-native-async-storage/async-storage');
 
 const firebaseConfig = {
     apiKey: "AIzaSyCNuU3HvsJPY7oxo2_7q4O8I3YJyGGg-70",
@@ -57,10 +57,10 @@ export async function getData(database, path) {
 
 export function generateCode() {
     let codeLength = 5
-    result = ""
-    options = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    var result = ""
+    let options = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
     for (let i = 0; i < codeLength; i++) {
-        index = Math.floor(Math.random() * options.length)
+        let index = Math.floor(Math.random() * options.length)
         result += options[index]
     }
     return result
