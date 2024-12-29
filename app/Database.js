@@ -14,7 +14,7 @@ async function getDataFromFirebase(database, path) {
     return dataList;
 }
 
-async function getDataFromFirebaseDoc(database, path, docID) {
+async function getDataFromFirebaseDoc(db, path, docID) {
   try {
     const dataDoc = doc(database, path, docID)
     const dataSnapshot = await getDoc(dataDoc)
@@ -58,9 +58,12 @@ export async function getData(database, path) {
     }
 }
 
-export async function getDataFromDoc(database, path, docID) {
+export async function getDataFromDoc(db, path, docID) {
+  //console.log("database " + JSON.stringify(db))
+  //console.log("path " + path)
+  //console.log("docID " + docID)
   try {
-      const dataList = await getDataFromFirebaseDoc(database, path, docID);
+      const dataList = await getDataFromFirebaseDoc(db, path, docID);
       return dataList;
   }
   catch (error) {

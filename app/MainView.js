@@ -6,17 +6,19 @@ import GoalView from './GoalView';
 import ChoreView from './ChoreView';
 import WheelView from './WheelView';
 
-export default function MainView( { setRoomID } ) {
+export default function MainView( { roomID, setRoomID } ) {
 
     const Tab = createBottomTabNavigator();
 
     return (
         <Tab.Navigator >
                 <Tab.Screen name="Home">
-                    {() => <HomeView setRoomID={setRoomID}/>}
+                    {() => <HomeView roomID={roomID} setRoomID={setRoomID}/>}
                 </Tab.Screen>
                 <Tab.Screen name="Chores" component={ChoreView}/>
-                <Tab.Screen name="Goals" component={GoalView}/>
+                <Tab.Screen name="Goals">
+                    { () => <GoalView roomID={roomID}/>}
+                </Tab.Screen>
                 <Tab.Screen name="Wheel" component={WheelView}/>
         </Tab.Navigator>
     )

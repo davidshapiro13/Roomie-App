@@ -1,31 +1,11 @@
 import { StyleSheet, Text, TextInput, View, Button, FlatList, Alert } from 'react-native';
 import { database, updateData, getData, getSavedRoomID, getDataFromDoc } from './Database';
 import React, {useState, useEffect} from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
-
-let goals = []
-
-export default function GoalView() {
+export default function GoalView( {roomID }) {
     const [newGoal, newGoalChanged] = useState('New Goal')
-    const [roomID, setRoomID] = useState(null)
-    const [goals, setGoals] = useState([])
-
-    useEffect( () => {
-        const getInfo = async () => {
-            try {
-                const newRoomID = await getSavedRoomID()
-                setRoomID(newRoomID)
-
-                const newGoals = loadGoals(roomID)
-                setGoals(newGoals)
-            }
-            catch (error) {
-                console.log("Error getting info - ", error)
-            }
-        }
-        getInfo()
-    })
-
+    const [goals, setGoals] = useState([{id: 1, title: "hellol", completed: true}])
     return (
         <View style={styles.container}>
             <Text>New Goal</Text>
@@ -36,9 +16,18 @@ export default function GoalView() {
             <Button title="Submit" onPress={() => {
                 submit(newGoal)}}
             />
-            <Text>{goals}</Text>
+            <Button title="Load" onPress={() => {
+                const load = async () => {
+                    let newGoals = await loadGoals(roomID)
+                    let proper_format = format(newGoals)
+                    console.log(proper_format)
+                    setGoals([proper_format])
+                }
+                load()
+                }}
+            />
             <FlatList
-                data={goals} renderItem={({item}) => <Text style={styles.item}>{item.key}</Text>}/>
+                data={goals} renderItem={({item}) => <Text style={styles.item}>{item.title}</Text>} keyExtractor={item => item.id}/>
             <Text>HI</Text>
         </View>
     )
@@ -58,11 +47,18 @@ async function submit(newGoal) {
     }
 }
 
+function format(original) {
+    
+    const array = Object.entries(original)[0]
+    const uniqueID = Date.now().toString()
+    console.log(uniqueID)
+    return {id: uniqueID, title: array[0], completed: array[1]}
+}
 async function loadGoals(roomID) {
     try {
         const data = await getDataFromDoc(database, 'rooms', roomID)
-        const goals = data["goals"]
-        return goals
+        const newGoals = data.goals
+        return newGoals
     }
     catch (error) {
         console.log("ERROR LoadGoals() - " + error)
