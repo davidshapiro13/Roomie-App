@@ -1,11 +1,25 @@
-import { StyleSheet, Text, TextInput, View, Button, FlatList, Alert } from 'react-native';
-import { database, updateData, getData, getSavedRoomID, getDataFromDoc } from './Database';
+import { StyleSheet, Text, TextInput, View, Button, FlatList, RefreshControl} from 'react-native';
+import { database, updateData, getDataFromDoc } from './Database';
 import React, {useState, useEffect} from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import GoalItem from './GoalItem';
+
 
 export default function GoalView( {roomID }) {
     const [newGoal, newGoalChanged] = useState('New Goal')
-    const [goals, setGoals] = useState([{id: 1, title: "hellol", completed: true}])
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [goals, setGoals] = useState([])
+
+    useEffect( () => {
+        const load = async () => {
+            setIsRefreshing(true)
+            let newGoals = await loadGoals(roomID)
+            let proper_format = format(newGoals)
+            setGoals(proper_format)
+            setIsRefreshing(false)
+        }
+        load()
+    }, [] )
+
     return (
         <View style={styles.container}>
             <Text>New Goal</Text>
@@ -14,29 +28,35 @@ export default function GoalView( {roomID }) {
                 value={newGoal}
             />
             <Button title="Submit" onPress={() => {
-                submit(newGoal)}}
-            />
-            <Button title="Load" onPress={() => {
-                const load = async () => {
-                    let newGoals = await loadGoals(roomID)
-                    let proper_format = format(newGoals)
-                    console.log(proper_format)
-                    setGoals([proper_format])
-                }
+                submit(roomID, newGoal)
                 load()
-                }}
+            }}
             />
+
             <FlatList
-                data={goals} renderItem={({item}) => <Text style={styles.item}>{item.title}</Text>} keyExtractor={item => item.id}/>
-            <Text>HI</Text>
+                data={goals} renderItem={({item}) => <GoalItem title={item.title} completed={item.completed}/>}
+                keyExtractor={item => item.id}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={load}   
+                    /> }
+            />
         </View>
     )
+
+    async function load() {
+        setIsRefreshing(true)
+        let newGoals = await loadGoals(roomID)
+        let proper_format = format(newGoals)
+        setGoals(proper_format)
+        setIsRefreshing(false)
+    }
 }
 
-async function submit(newGoal) {
+
+async function submit(roomID, newGoal) {
     try {
-        const roomID = await getSavedRoomID()
-        console.log("IMPORTANT ", roomID)
         const data = {[`goals.${newGoal}`] : false}
         const _ = await updateData(database, 'rooms/' + roomID, data)
         console.log(roomID)
@@ -48,11 +68,14 @@ async function submit(newGoal) {
 }
 
 function format(original) {
-    
-    const array = Object.entries(original)[0]
-    const uniqueID = Date.now().toString()
-    console.log(uniqueID)
-    return {id: uniqueID, title: array[0], completed: array[1]}
+    let result = []
+    const array = Object.entries(original)
+    array.forEach( item => {
+        const uniqueID = Date.now().toString() + Math.random()
+        const map = {id: uniqueID, title: item[0], completed: item[1]}
+        result.push(map)
+    })
+    return result.sort((item1, item2) => item1.title.localeCompare(item2.title))
 }
 async function loadGoals(roomID) {
     try {
