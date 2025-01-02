@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { getFirestore, collection, deleteDoc, getDocs, getDoc, addDoc, updateDoc, doc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { firebaseConfig } from '../secret';
 
@@ -71,6 +71,7 @@ export async function getDataFromDoc(db, path, docID) {
       throw error;
   }
 }
+
 
 export function generateCode() {
     let codeLength = 5

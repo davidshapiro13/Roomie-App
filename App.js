@@ -5,6 +5,7 @@ import LoginView from './app/LoginView';
 import MainView from './app/MainView';
 import { getLoggedInStatus, getSavedRoomID } from './app/Database';
 import { NavigationContainer } from '@react-navigation/native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 function logout(loggedIn) {
   loggedIn = false
@@ -27,19 +28,21 @@ export default function App() {
     fetchRoomID()
   })
   return (
+    <GestureHandlerRootView>
     <NavigationContainer>
-      <Navigator screenOptions={{ headerShown: false }}>
-      { roomID != null ? (
-              <Screen name = "Main">
-                {() => <MainView roomID={roomID} setRoomID={setRoomID}/>}
-              </Screen>
-              ) : (
-              <Screen name="Login">
-                {() => <LoginView setRoomID={setRoomID}/>}
-              </Screen>
-              )}
-      </Navigator>
-      </NavigationContainer>
+        <Navigator screenOptions={{ headerShown: false }}>
+        { roomID != null ? (
+                <Screen name = "Main">
+                  {() => <MainView roomID={roomID} setRoomID={setRoomID}/>}
+                </Screen>
+                ) : (
+                <Screen name="Login">
+                  {() => <LoginView setRoomID={setRoomID}/>}
+                </Screen>
+                )}
+        </Navigator>
+        </NavigationContainer>
+      </GestureHandlerRootView>
   )
 }
 
