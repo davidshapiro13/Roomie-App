@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { Text, View } from 'react-native';
+import { styles } from './Styles'
 
 export default function WheelView() {
     return (
@@ -7,11 +8,3 @@ export default function WheelView() {
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    }
-  });

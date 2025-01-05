@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View, Button } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'; 
 import React from 'react';
 import HomeView from './HomeView';
 import GoalView from './GoalView';
 import ChoreView from './ChoreView';
 import WheelView from './WheelView';
+import { styles } from './Styles';
 
 export default function MainView( { roomID, setRoomID } ) {
 
@@ -23,11 +23,3 @@ export default function MainView( { roomID, setRoomID } ) {
         </Tab.Navigator>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    }
-  });

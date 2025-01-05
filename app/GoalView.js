@@ -1,16 +1,21 @@
-import { StyleSheet, Text, TextInput, View, Button, FlatList, RefreshControl, TouchableOpacity} from 'react-native';
+import { Text, TextInput, View, Button, FlatList, RefreshControl, TouchableOpacity} from 'react-native';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { database, updateData, deleteGoalItem, getDataFromDoc } from './Database';
+import { database, updateData, getDataFromDoc } from './Database';
 import React, {useState, useEffect} from 'react';
 import GoalItem from './GoalItem';
 import { deleteField } from 'firebase/firestore';
+import { styles } from './Styles';
 
 
 export default function GoalView( {roomID }) {
+
     const [newGoal, newGoalChanged] = useState('New Goal')
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [goals, setGoals] = useState([])
 
+    /**
+     * Load goals on initial load of screen
+     */
     useEffect( () => {
         const loadUseEffect = async () => {
             await load()
@@ -18,14 +23,20 @@ export default function GoalView( {roomID }) {
         loadUseEffect()
     }, [] )
 
-    
+    /**
+     * Delete button for goal item
+     */
     const renderRightActions = ( {roomID, title} ) => (
         <TouchableOpacity onPress={() => deleteItem(roomID, title)}>
             <Text>Delete</Text>
         </TouchableOpacity>
     )
+
+    /**
+     * Goal Item that is slideable to delete
+     */
     const renderItem = ( {item} ) => (
-        <Swipeable renderRightActions={() => renderRightActions({roomID, title: item.title})}>
+        <Swipeable renderRightActions={(progress, dragX) => renderRightActions({roomID, title: item.title})}>
             <GoalItem title={item.title} completed={item.completed} roomID={roomID}/>
         </Swipeable>
     )
@@ -38,6 +49,7 @@ export default function GoalView( {roomID }) {
                 onChangeText={newGoalChanged}
                 value={newGoal}
             />
+
             <Button title="Submit" onPress={async () => {
                 await submit(roomID, newGoal)
                 await load()
@@ -46,6 +58,7 @@ export default function GoalView( {roomID }) {
 
             <FlatList
                 data={goals} renderItem={renderItem}
+                style={styles.list}
                 keyExtractor={item => item.id}
                 refreshControl={
                     <RefreshControl
@@ -53,9 +66,13 @@ export default function GoalView( {roomID }) {
                         onRefresh={load}   
                     /> }
             />
+
         </View>
     )
 
+    /**
+     * checks for new goals and uploads
+     */
     async function load() {
         setIsRefreshing(true)
         let newGoals = await loadGoals(roomID)
@@ -64,6 +81,12 @@ export default function GoalView( {roomID }) {
         setIsRefreshing(false)
     }
     
+    /**
+     * Deletes a goal item
+     * @param {*} roomID - roomID where goal resides
+     * @param {*} goalName - name of the goal
+     * @param {*} setIsRefreshing - refreshing control to turn on and off
+     */
     async function deleteItem(roomID, goalName, setIsRefreshing) {
         try {
             const data = {[`goals.${goalName}`]: deleteField()}
@@ -75,6 +98,11 @@ export default function GoalView( {roomID }) {
         }
     }
     
+    /**
+     * Enter a new goal
+     * @param {*} roomID - room ID of room where goal goes 
+     * @param {*} newGoal - name of new goal
+     */
     async function submit(roomID, newGoal) {
         try {
             const data = {[`goals.${newGoal}`] : false}
@@ -87,6 +115,11 @@ export default function GoalView( {roomID }) {
         }
     }
     
+    /**
+     * Correctly formats and sorts items for display
+     * @param {*} original - original data
+     * @returns sorted format
+     */
     function format(original) {
         let result = []
         const array = Object.entries(original)
@@ -98,6 +131,11 @@ export default function GoalView( {roomID }) {
         return result.sort((item1, item2) => item1.title.localeCompare(item2.title))
     }
     
+    /**
+     * Retrieves goal data from database
+     * @param {*} roomID - roomID of room loading for
+     * @returns new goals
+     */
     async function loadGoals(roomID) {
         try {
             const data = await getDataFromDoc(database, 'rooms', roomID)
@@ -110,23 +148,3 @@ export default function GoalView( {roomID }) {
         }
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    input: {
-        borderWidth: 1,
-        width: 200,
-        marginTop: 5,
-        padding: 5
-    },
-    item: {
-        padding: 10,
-        justifyContent: "center",
-        fontSize: 18,
-        height: 44,
-      },
-  });

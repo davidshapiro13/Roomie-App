@@ -1,10 +1,13 @@
-import { StyleSheet, Modal, Text, View, Button, Alert, TextInput } from 'react-native';
+import { Text, View, Button, TextInput } from 'react-native';
 import React, {useState} from 'react';
-import { database, addData, generateCode, updateLoginStatus, updateRoomIDStatus } from './Database';
+import { database, addData, generateCode, updateRoomIDStatus } from './Database';
+import { styles } from './Styles';
 
 export default function CreateRoomView( { setRoomID, onClose }) {
+
     const [roomName, roomNameChanged] = useState('Room name')
     const [userName, userNameChanged] = useState('Your name')
+
     return (
         <View style={styles.container}>
             <Text>Create Room</Text>
@@ -22,11 +25,15 @@ export default function CreateRoomView( { setRoomID, onClose }) {
             />
 
             <Button title="Submit" onPress={() => {
-                submit({setRoomID, roomName, userName, onClose})}}/>
+                submit({setRoomID, roomName, userName, onClose})}}
+            />
         </View>
     )
 }
 
+/**
+ * Enters data for a brand new room
+ */
 function submit({setRoomID, roomName, userName, onClose}) {
     const data = {
         "room_name" : roomName,
@@ -39,17 +46,3 @@ function submit({setRoomID, roomName, userName, onClose}) {
     });
     onClose();
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    input: {
-        borderWidth: 1,
-        width: 200,
-        marginTop: 5,
-        padding: 5
-    }
-  });

@@ -1,8 +1,10 @@
-import { StyleSheet, Text, View, Button } from 'react-native';
-import { getSavedRoomID, updateRoomIDStatus } from './Database'
+import { Text, View, Button } from 'react-native';
+import { updateRoomIDStatus } from './Database';
 import React from 'react';
+import { styles } from './Styles';
 
 export default function HomeView( { roomID, setRoomID } ) {
+
     return (
         <View style={styles.container}>
             <Text>{JSON.stringify(roomID)}</Text>
@@ -16,11 +18,3 @@ export default function HomeView( { roomID, setRoomID } ) {
         
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    }
-  });

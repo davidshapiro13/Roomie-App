@@ -1,11 +1,11 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StyleSheet, View, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import LoginView from './app/LoginView';
 import MainView from './app/MainView';
-import { getLoggedInStatus, getSavedRoomID } from './app/Database';
+import { getSavedRoomID } from './app/Database';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { styles } from './app/Styles'
 
 function logout(loggedIn) {
   loggedIn = false
@@ -19,14 +19,17 @@ export default function App() {
 
   const [roomID, setRoomID] = useState(null)
 
+  /**
+   * Load roomID if there is one
+   */
   useEffect( () => {
     const fetchRoomID = async () => {
       const savedRoomID = await getSavedRoomID();
       setRoomID(savedRoomID)
-      console.log(roomID)
     }
     fetchRoomID()
   })
+
   return (
     <GestureHandlerRootView>
     <NavigationContainer>
@@ -45,11 +48,3 @@ export default function App() {
       </GestureHandlerRootView>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-  }
-});

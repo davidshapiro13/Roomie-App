@@ -1,10 +1,13 @@
-import { StyleSheet, Modal, Text, View, Button, Alert, TextInput } from 'react-native';
+import { Text, View, Button, Alert, TextInput } from 'react-native';
 import React, {useState} from 'react';
-import { database, addData, getData, updateData, generateCode, updateRoomIDStatus } from './Database';
+import { database, getData, updateData, updateRoomIDStatus } from './Database';
+import { styles } from './Styles'
 
 export default function JoinRoomView( { setRoomID, onClose }) {
+
     const [roomCode, roomCodeChanged] = useState('Room code')
     const [userName, userNameChanged] = useState('Your name')
+
     return (
         <View style={styles.container}>
             <Text>Join Room</Text>
@@ -27,6 +30,9 @@ export default function JoinRoomView( { setRoomID, onClose }) {
     )
 }
 
+/**
+ * Submits new data when person joins room
+ */
 async function submit({setRoomID, roomCode, userName, onClose}) {
     try {
         const data = await getData(database, 'code-to-roomID')
@@ -47,6 +53,12 @@ async function submit({setRoomID, roomCode, userName, onClose}) {
     }
 }
 
+/**
+ * Retrieve room ID from room code
+ * @param {*} data - data to search through
+ * @param {*} roomCode - room code to search with as key
+ * @returns room ID for room joined
+ */
 function getRoomID(data, roomCode) {
     for (let i=0; i < data.length; i++) {
         const item = data[i]
@@ -56,17 +68,3 @@ function getRoomID(data, roomCode) {
     }  
     return "ERROR" 
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    input: {
-        borderWidth: 1,
-        width: 200,
-        marginTop: 5,
-        padding: 5
-    }
-  });

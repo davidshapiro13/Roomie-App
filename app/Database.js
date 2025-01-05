@@ -1,12 +1,19 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, deleteDoc, getDocs, getDoc, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, doc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { firebaseConfig } from '../secret';
 
-
+//Database Creation
 const app = initializeApp(firebaseConfig);
 export const database = getFirestore(app);
 
+/**
+ * Retrieve data from database
+ *
+ * @param {*} database - storage database
+ * @param {*} path - path inside database
+ * @returns data stored at that path
+ */
 async function getDataFromFirebase(database, path) {
     const dataCol = collection(database, path);
     const dataSnapshot = await getDocs(dataCol);
@@ -14,6 +21,13 @@ async function getDataFromFirebase(database, path) {
     return dataList;
 }
 
+/**
+ * Retrieves data from a firebase doc
+ * @param {*} db - storage database
+ * @param {*} path - path inside database
+ * @param {*} docID - the specific doc wanted
+ * @returns data stored in that document
+ */
 async function getDataFromFirebaseDoc(db, path, docID) {
   try {
     const dataDoc = doc(database, path, docID)
@@ -26,6 +40,13 @@ async function getDataFromFirebaseDoc(db, path, docID) {
   }
 }
 
+/**
+ * Adds data to the database
+ * @param {*} db - database to add to
+ * @param {*} path - path of where to add to
+ * @param {*} dataObject - object to add
+ * @returns 
+ */
 export async function addData(db, path, dataObject) {
     try {
       const dataRef = collection(db, path);
@@ -37,6 +58,12 @@ export async function addData(db, path, dataObject) {
     }
 }
 
+/**
+ * Updates pre-existing data
+ * @param {*} database - database to update
+ * @param {*} path - path of object to update
+ * @param {*} dataObject - new version to replace with
+ */
 export async function updateData(database, path, dataObject) {
     try {
       const docRef = doc(database, path);
@@ -47,6 +74,12 @@ export async function updateData(database, path, dataObject) {
     }
   }
 
+/**
+ * Gets data using the getDataFromFirebase function
+ * @param {*} database - database to retrieve from
+ * @param {*} path - path of data
+ * @returns data searched for
+ */
 export async function getData(database, path) {
     try {
         const dataList = await getDataFromFirebase(database, path);
@@ -58,10 +91,14 @@ export async function getData(database, path) {
     }
 }
 
+/**
+ * Gets data from doc using getDataFromFirebaseDoc function
+ * @param {*} db - database to retrieve from
+ * @param {*} path - path of data
+ * @param {*} docID - specific doc data wanted from
+ * @returns data searched for
+ */
 export async function getDataFromDoc(db, path, docID) {
-  //console.log("database " + JSON.stringify(db))
-  //console.log("path " + path)
-  //console.log("docID " + docID)
   try {
       const dataList = await getDataFromFirebaseDoc(db, path, docID);
       return dataList;
@@ -73,6 +110,10 @@ export async function getDataFromDoc(db, path, docID) {
 }
 
 
+/**
+ * Creates a 5 alpha-numeric code for logging in
+ * @returns code created
+ */
 export function generateCode() {
     let codeLength = 5
     var result = ""
@@ -86,6 +127,10 @@ export function generateCode() {
 
 }
 
+/**
+ * Saves the roomID on the system
+ * @param {*} roomID - roomID to save
+ */
 export async function updateRoomIDStatus(roomID) {
   try {
     await AsyncStorage.setItem('@roomID', JSON.stringify(roomID));
@@ -96,6 +141,10 @@ export async function updateRoomIDStatus(roomID) {
   }
 }
 
+/**
+ * Recieve the room id from the system
+ * @returns roomID saved; null if none
+ */
 export async function getSavedRoomID() {
   try {
     const roomID = await AsyncStorage.getItem('@roomID');

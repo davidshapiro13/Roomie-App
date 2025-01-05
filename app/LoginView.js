@@ -1,14 +1,14 @@
-import { StyleSheet, Modal, Text, View, Button, Alert } from 'react-native';
+import { Modal, Text, View, Button, Alert } from 'react-native';
 import React, {useState} from 'react';
 import CreateRoomView from './CreateRoomView';
 import JoinRoomView from './JoinRoomView';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, addDoc } from 'firebase/firestore';
-import { database, addData, getData } from './Database';
+import { styles } from './Styles';
 
 export default function LoginView( { setRoomID }) {
+
     const [createRoomOn, setCreateRoomOn] = useState(false)
     const [joinRoomOn, setJoinRoomOn] = useState(false)
+
     return (
         <View style={styles.container}>
             <Text>Roomie</Text>
@@ -36,14 +36,3 @@ export default function LoginView( { setRoomID }) {
         </View>
     )
 }
-
-
-
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    }
-  });
