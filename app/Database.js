@@ -15,10 +15,10 @@ export const database = getFirestore(app);
  * @returns data stored at that path
  */
 async function getDataFromFirebase(database, path) {
-    const dataCol = collection(database, path);
-    const dataSnapshot = await getDocs(dataCol);
-    const dataList = dataSnapshot.docs.map(doc => doc.data());
-    return dataList;
+      const dataCol = collection(database, path);
+      const dataSnapshot = await getDocs(dataCol);
+      const dataList = dataSnapshot.docs.map(doc => doc.data());
+      return dataList;
 }
 
 /**
@@ -29,16 +29,18 @@ async function getDataFromFirebase(database, path) {
  * @returns data stored in that document
  */
 async function getDataFromFirebaseDoc(db, path, docID) {
-  try {
-    const dataDoc = doc(database, path, docID)
-    const dataSnapshot = await getDoc(dataDoc)
-    const dataList = dataSnapshot.data()
-    return dataList
-  }
-  catch (error) {
-    console.log("ERROR in firebaseDoc " + error)
-  }
+    try {
+      const dataDoc = doc(database, path, docID)
+      const dataSnapshot = await getDoc(dataDoc)
+      const dataList = dataSnapshot.data()
+      return dataList
+    }
+    catch (error) {
+      console.log("Error: ", error)
+      return []
+    }
 }
+
 
 /**
  * Adds data to the database
@@ -87,7 +89,6 @@ export async function getData(database, path) {
     }
     catch (error) {
         console.log('Error fetching data: ' + error);
-        throw error;
     }
 }
 
@@ -99,14 +100,8 @@ export async function getData(database, path) {
  * @returns data searched for
  */
 export async function getDataFromDoc(db, path, docID) {
-  try {
-      const dataList = await getDataFromFirebaseDoc(db, path, docID);
-      return dataList;
-  }
-  catch (error) {
-      console.log('Error fetching data: ' + error);
-      throw error;
-  }
+    const dataList = await getDataFromFirebaseDoc(db, path, docID);
+    return dataList;
 }
 
 

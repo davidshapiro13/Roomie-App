@@ -13,6 +13,9 @@ export const styles = StyleSheet.create({
         marginTop: 5,
         padding: 5
     },
+    error: {
+        color: 'red'
+    },
 
     //Goal Item
     checkboxContainer: {

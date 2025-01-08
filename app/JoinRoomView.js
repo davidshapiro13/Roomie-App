@@ -5,11 +5,15 @@ import { styles } from './Styles'
 
 export default function JoinRoomView( { setRoomID, onClose }) {
 
-    const [roomCode, roomCodeChanged] = useState('Room code')
-    const [userName, userNameChanged] = useState('Your name')
+    const DEFAULT_ROOM_CODE = 'Room code'
+    const DEFAULT_USER_NAME = 'Your name'
+    const [roomCode, roomCodeChanged] = useState(DEFAULT_ROOM_CODE)
+    const [userName, userNameChanged] = useState(DEFAULT_USER_NAME)
+    const [errorMessage, setErrorMessage] = useState("")
 
     return (
         <View style={styles.container}>
+            <Text style={styles.error}>{errorMessage}</Text>
             <Text>Join Room</Text>
             
             <Text>Room Code: </Text>
@@ -25,33 +29,64 @@ export default function JoinRoomView( { setRoomID, onClose }) {
             />
 
             <Button title="Submit" onPress={() => {
-                submit({setRoomID, roomCode, userName, onClose})}}/>
+                if (proper(roomCode, userName)) {
+                    setErrorMessage("")
+                    submit({setRoomID, roomCode, userName, onClose})
+                }
+                else {
+                    setErrorMessage("Please fill in a proper room code and user name")
+                }}}/>
         </View>
     )
-}
 
-/**
- * Submits new data when person joins room
- */
-async function submit({setRoomID, roomCode, userName, onClose}) {
-    try {
-        const data = await getData(database, 'code-to-roomID')
-        const roomID = getRoomID(data, roomCode)
-        if (roomID != "ERROR") {
-            const memberData = {
-                [`members.${userName}`] : "FILL IN LATER"
-            }
-            setRoomID(roomID)
-            updateRoomIDStatus(roomID)
-            updateData(database, 'rooms/' + roomID, memberData)
-            onClose()
+    /**
+     * Checks if proper format
+     * @param {*} roomCode - roomCode
+     * @param {*} userName - name of user
+     * @returns true if proper format; false otherwise
+     */
+    function proper(roomCode, userName) {
+        if (roomCode.length != 5 || roomCode == DEFAULT_ROOM_CODE ||
+            userName.length == 0 || userName == DEFAULT_USER_NAME) {
+                return false
+        }
+        else {
+            return true
         }
     }
-    catch (error) {
-        Alert.alert('Error fetching data: ' + error);
-        throw error;
+
+    /**
+    * Submits new data when person joins room
+    */
+    async function submit({setRoomID, roomCode, userName, onClose}) {
+        try {
+            const data = await getData(database, 'code-to-roomID')
+            const roomID = getRoomID(data, roomCode)
+            if (data.length == 0) {
+                setErrorMessage("Cannot connect to Internet")
+                return
+            }
+            else if (roomID != "ERROR") {
+                const memberData = {
+                    [`members.${userName}`] : "FILL IN LATER"
+                }
+                setErrorMessage("")
+                setRoomID(roomID)
+                updateRoomIDStatus(roomID)
+                updateData(database, 'rooms/' + roomID, memberData)
+                onClose()
+            }
+            else {
+                setErrorMessage("Room Code does not exist")
+            }
+        }
+        catch (error) {
+            Alert.alert('Error fetching data: ' + error);
+            throw error;
+        }
     }
 }
+
 
 /**
  * Retrieve room ID from room code

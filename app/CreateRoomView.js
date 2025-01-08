@@ -5,13 +5,17 @@ import { styles } from './Styles';
 
 export default function CreateRoomView( { setRoomID, onClose }) {
 
-    const [roomName, roomNameChanged] = useState('Room name')
-    const [userName, userNameChanged] = useState('Your name')
+    const DEFAULT_ROOM_NAME = 'Room name'
+    const DEFAULT_USER_NAME = 'Your name'
+    const [roomName, roomNameChanged] = useState(DEFAULT_ROOM_NAME)
+    const [userName, userNameChanged] = useState(DEFAULT_USER_NAME)
+    const [errorMessage, setErrorMessage] = useState("")
 
     return (
         <View style={styles.container}>
             <Text>Create Room</Text>
             
+            <Text style={styles.error}>{errorMessage}</Text>
             <Text>Room Name: </Text>
             <TextInput style={styles.input}
                 onChangeText={roomNameChanged}
@@ -25,10 +29,32 @@ export default function CreateRoomView( { setRoomID, onClose }) {
             />
 
             <Button title="Submit" onPress={() => {
-                submit({setRoomID, roomName, userName, onClose})}}
+                if (proper(roomName, userName)) {
+                    setErrorMessage("")
+                    submit({setRoomID, roomName, userName, onClose})
+                }
+                else {
+                    setErrorMessage("Room name and User name cannot be blank")
+                }
+                }}
             />
         </View>
     )
+
+    /**
+     * Checks if proper format
+     * @param {*} roomName - name of room
+     * @param {*} userName - name of user
+     * @returns true if proper format; false otherwise
+     */
+    function proper(roomName, userName) {
+        if (roomName == DEFAULT_ROOM_NAME || roomName == null ||
+            userName == DEFAULT_USER_NAME || userName == null)
+        {
+            return false
+        }
+        return true
+    }
 }
 
 /**

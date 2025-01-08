@@ -9,9 +9,12 @@ import { styles } from './Styles';
 
 export default function GoalView( {roomID }) {
 
-    const [newGoal, newGoalChanged] = useState('New Goal')
+    const DEFAULT_GOAL_NAME = 'New Goal'
+
+    const [newGoal, newGoalChanged] = useState(DEFAULT_GOAL_NAME)
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [goals, setGoals] = useState([])
+    const [errorMessage, setErrorMessage] = useState("")
 
     /**
      * Load goals on initial load of screen
@@ -44,6 +47,8 @@ export default function GoalView( {roomID }) {
     
     return (
         <View style={styles.container}>
+            <Text style={styles.error}>{errorMessage}</Text>
+
             <Text>New Goal</Text>
             <TextInput style={styles.input}
                 onChangeText={newGoalChanged}
@@ -51,8 +56,16 @@ export default function GoalView( {roomID }) {
             />
 
             <Button title="Submit" onPress={async () => {
-                await submit(roomID, newGoal)
-                await load()
+                if (proper(newGoal)) {
+                    await submit(roomID, newGoal)
+                    let loadSuccess = await load()
+                    if (loadSuccess) {
+                        setErrorMessage("")
+                    }
+                }
+                else {
+                    setErrorMessage("Create a name for goal")
+                }
             }}
             />
 
@@ -72,13 +85,19 @@ export default function GoalView( {roomID }) {
 
     /**
      * checks for new goals and uploads
+     * @return true if success; false if not connected to internet
      */
     async function load() {
         setIsRefreshing(true)
         let newGoals = await loadGoals(roomID)
+        if (newGoals.length == 0) {
+            setIsRefreshing(false)
+            return false
+        }
         let proper_format = format(newGoals)
         setGoals(proper_format)
         setIsRefreshing(false)
+        return true
     }
     
     /**
@@ -107,7 +126,6 @@ export default function GoalView( {roomID }) {
         try {
             const data = {[`goals.${newGoal}`] : false}
             const _ = await updateData(database, 'rooms/' + roomID, data)
-            console.log(roomID)
         }
         catch (error) {
             console.log("Error " + error)
@@ -130,6 +148,20 @@ export default function GoalView( {roomID }) {
         })
         return result.sort((item1, item2) => item1.title.localeCompare(item2.title))
     }
+
+    /**
+     * Checks if goalName is proper or not
+     * @param {*} goalName - name of goal
+     * @returns true if proper format; false otherwise
+     */
+    function proper(goalName) {
+        if (goalName.length == 0 || goalName == DEFAULT_GOAL_NAME) {
+            return false
+        }
+        else {
+            return true
+        }
+    }
     
     /**
      * Retrieves goal data from database
@@ -137,14 +169,14 @@ export default function GoalView( {roomID }) {
      * @returns new goals
      */
     async function loadGoals(roomID) {
-        try {
-            const data = await getDataFromDoc(database, 'rooms', roomID)
+        const data = await getDataFromDoc(database, 'rooms', roomID)
+        if (data.length == 0) {
+            setErrorMessage("Cannot connect to Internet")
+            return []
+        }
+        else {
             const newGoals = data.goals
             return newGoals
-        }
-        catch (error) {
-            console.log("ERROR LoadGoals() - " + error)
-            return []
         }
     }
 }
