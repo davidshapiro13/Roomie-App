@@ -8,41 +8,6 @@ const app = initializeApp(firebaseConfig);
 export const database = getFirestore(app);
 
 /**
- * Retrieve data from database
- *
- * @param {*} database - storage database
- * @param {*} path - path inside database
- * @returns data stored at that path
- */
-async function getDataFromFirebase(database, path) {
-      const dataCol = collection(database, path);
-      const dataSnapshot = await getDocs(dataCol);
-      const dataList = dataSnapshot.docs.map(doc => doc.data());
-      return dataList;
-}
-
-/**
- * Retrieves data from a firebase doc
- * @param {*} db - storage database
- * @param {*} path - path inside database
- * @param {*} docID - the specific doc wanted
- * @returns data stored in that document
- */
-async function getDataFromFirebaseDoc(db, path, docID) {
-    try {
-      const dataDoc = doc(database, path, docID)
-      const dataSnapshot = await getDoc(dataDoc)
-      const dataList = dataSnapshot.data()
-      return dataList
-    }
-    catch (error) {
-      console.log("Error: ", error)
-      return []
-    }
-}
-
-
-/**
  * Adds data to the database
  * @param {*} db - database to add to
  * @param {*} path - path of where to add to
@@ -57,6 +22,7 @@ export async function addData(db, path, dataObject) {
     }
     catch (e) {
       console.error('Error adding document: - add Data', e);
+      return null
     }
 }
 
@@ -65,14 +31,16 @@ export async function addData(db, path, dataObject) {
  * @param {*} database - database to update
  * @param {*} path - path of object to update
  * @param {*} dataObject - new version to replace with
+ * @return true if success; false otherwise
  */
 export async function updateData(database, path, dataObject) {
     try {
       const docRef = doc(database, path);
       await updateDoc(docRef, dataObject)
+      return true
     } catch (e) {
       console.error('Error adding document - here: ', path, " ", e);
-      throw e
+      return false
     }
   }
 
@@ -84,11 +52,14 @@ export async function updateData(database, path, dataObject) {
  */
 export async function getData(database, path) {
     try {
-        const dataList = await getDataFromFirebase(database, path);
-        return dataList;
+      const dataCol = collection(database, path);
+      const dataSnapshot = await getDocs(dataCol);
+      const dataList = dataSnapshot.docs.map(doc => doc.data());
+      return dataList;
     }
     catch (error) {
         console.log('Error fetching data: ' + error);
+        return []
     }
 }
 
@@ -99,9 +70,17 @@ export async function getData(database, path) {
  * @param {*} docID - specific doc data wanted from
  * @returns data searched for
  */
-export async function getDataFromDoc(db, path, docID) {
-    const dataList = await getDataFromFirebaseDoc(db, path, docID);
-    return dataList;
+export async function getDataFromDoc(database, path, docID) {
+  try {
+    const dataDoc = doc(database, path, docID)
+    const dataSnapshot = await getDoc(dataDoc)
+    const dataList = dataSnapshot.data()
+    return dataList
+  }
+  catch (error) {
+    console.log("Error: ", error)
+    return []
+  }
 }
 
 
@@ -125,14 +104,16 @@ export function generateCode() {
 /**
  * Saves the roomID on the system
  * @param {*} roomID - roomID to save
+ * @return true if successful; false otherwise
  */
 export async function updateRoomIDStatus(roomID) {
   try {
     await AsyncStorage.setItem('@roomID', JSON.stringify(roomID));
-    console.log(JSON.stringify(roomID))
+    return true
   }
   catch (error) {
     console.error("Could not save roomID status");
+    return false
   }
 }
 
