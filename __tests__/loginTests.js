@@ -4,7 +4,7 @@
 
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, doc } from 'firebase/firestore';
-import { addData, updateData, getData, getDataFromDoc, updateRoomIDStatus, getSavedRoomID } from "../app/Database"
+import { addData, updateData, getData, getDataFromDoc, updateRoomIDStatus, getSavedRoomID, getSavedItem } from "../app/Database"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 jest.mock('firebase/app', () => ({
@@ -152,7 +152,7 @@ describe('room status', () => {
 
     test('get roomID correctly', async () => {
         AsyncStorage.getItem.mockResolvedValue(mockRoomIDObject)
-        const result = await getSavedRoomID()
+        const result = await getSavedItem('@roomID')
 
         expect(AsyncStorage.getItem).toHaveBeenCalledWith(mockRoomLabel)
         expect(result).toEqual(mockRoomID)
@@ -160,7 +160,7 @@ describe('room status', () => {
 
     test('get roomID incorrect', async () => {
         AsyncStorage.getItem.mockRejectedValue(new Error('Test error'));
-        const result = await getSavedRoomID()
+        const result = await getSavedItem('@roomID')
 
         expect(AsyncStorage.getItem).toHaveBeenCalledWith(mockRoomLabel)
         expect(result).toEqual(null)

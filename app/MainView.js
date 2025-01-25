@@ -19,7 +19,9 @@ export default function MainView( { roomID, setRoomID } ) {
                 <Tab.Screen name="Goals">
                     { () => <GoalView roomID={roomID}/>}
                 </Tab.Screen>
-                <Tab.Screen name="Wheel" component={WheelView}/>
+                <Tab.Screen name="Wheel">
+                { () => <WheelView roomID={roomID} />}
+                </Tab.Screen>
         </Tab.Navigator>
     )
 }

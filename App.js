@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect, useState } from 'react';
 import LoginView from './app/LoginView';
 import MainView from './app/MainView';
-import { getSavedRoomID } from './app/Database';
+import { getSavedItem, getSavedRoomID } from './app/Database';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { styles } from './app/Styles'
@@ -18,13 +18,14 @@ const Screen = Stack.Screen;
 export default function App() {
 
   const [roomID, setRoomID] = useState(null)
+  const [username, setUsername] = useState(null)
 
   /**
    * Load roomID if there is one
    */
   useEffect( () => {
     const fetchRoomID = async () => {
-      const savedRoomID = await getSavedRoomID();
+      const savedRoomID = await getSavedItem('@roomID');
       setRoomID(savedRoomID)
     }
     fetchRoomID()
@@ -36,7 +37,7 @@ export default function App() {
         <Navigator screenOptions={{ headerShown: false }}>
         { roomID != null ? (
                 <Screen name = "Main">
-                  {() => <MainView roomID={roomID} setRoomID={setRoomID}/>}
+                  {() => <MainView roomID={roomID} setRoomID={setRoomID} />}
                 </Screen>
                 ) : (
                 <Screen name="Login">

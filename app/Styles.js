@@ -39,5 +39,9 @@ export const styles = StyleSheet.create({
       },
     list: {
         flex: 1
-    }
+    },
+    pieContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
   });

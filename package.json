@@ -29,6 +29,7 @@
     "react-native": "^0.76.5",
     "react-native-bouncy-checkbox": "^4.1.2",
     "react-native-gesture-handler": "^2.21.2",
+    "react-native-pie-chart": "^4.0.0",
     "react-native-reanimated": "^3.16.6",
     "react-native-safe-area-context": "^5.0.0",
     "react-native-screens": "^4.4.0",

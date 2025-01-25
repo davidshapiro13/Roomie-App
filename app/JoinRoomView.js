@@ -1,6 +1,6 @@
 import { Text, View, Button, Alert, TextInput } from 'react-native';
 import React, {useState} from 'react';
-import { database, getData, updateData, updateRoomIDStatus } from './Database';
+import { database, getData, updateData, updateRoomIDStatus, updateSavedItemStatus } from './Database';
 import { styles } from './Styles'
 
 export default function JoinRoomView( { setRoomID, onClose }) {
@@ -72,7 +72,8 @@ export default function JoinRoomView( { setRoomID, onClose }) {
                 }
                 setErrorMessage("")
                 setRoomID(roomID)
-                updateRoomIDStatus(roomID)
+                updateSavedItemStatus('@roomID', roomID)
+                updateSavedItemStatus('@username', userName)
                 updateData(database, 'rooms/' + roomID, memberData)
                 onClose()
             }

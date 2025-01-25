@@ -102,17 +102,17 @@ export function generateCode() {
 }
 
 /**
- * Saves the roomID on the system
- * @param {*} roomID - roomID to save
+ * Saves the value on the system
+ * @param {*} value- value to save
  * @return true if successful; false otherwise
  */
-export async function updateRoomIDStatus(roomID) {
+export async function updateSavedItemStatus(label, value) {
   try {
-    await AsyncStorage.setItem('@roomID', JSON.stringify(roomID));
+    await AsyncStorage.setItem(label, JSON.stringify(value));
     return true
   }
   catch (error) {
-    console.error("Could not save roomID status");
+    console.error(`Could not save ${value} status`);
     return false
   }
 }
@@ -121,16 +121,16 @@ export async function updateRoomIDStatus(roomID) {
  * Recieve the room id from the system
  * @returns roomID saved; null if none
  */
-export async function getSavedRoomID() {
+export async function getSavedItem(label) {
   try {
-    const roomID = await AsyncStorage.getItem('@roomID');
-    if (roomID !== null) {
-      return JSON.parse(roomID);
+    const value = await AsyncStorage.getItem(label);
+    if (value !== null) {
+      return JSON.parse(value);
     }
     return null
   }
   catch (error) {
-    console.log('Failed to find roomID', error);
+    console.log('Failed to find value', error);
     return null;
   }
 }

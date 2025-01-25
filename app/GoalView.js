@@ -106,11 +106,11 @@ export default function GoalView( {roomID }) {
      * @param {*} goalName - name of the goal
      * @param {*} setIsRefreshing - refreshing control to turn on and off
      */
-    async function deleteItem(roomID, goalName, setIsRefreshing) {
+    async function deleteItem(roomID, goalName) {
         try {
             const data = {[`goals.${goalName}`]: deleteField()}
             await updateData(database, 'rooms/' + roomID, data)
-            await load(setIsRefreshing)
+            await load()
         }
         catch (error) {
             console.log("Error deleting item, " + error)

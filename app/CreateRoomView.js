@@ -1,6 +1,6 @@
 import { Text, View, Button, TextInput } from 'react-native';
 import React, {useState} from 'react';
-import { database, addData, generateCode, updateRoomIDStatus } from './Database';
+import { database, addData, generateCode, updateRoomIDStatus, updateSavedItemStatus } from './Database';
 import { styles } from './Styles';
 
 export default function CreateRoomView( { setRoomID, onClose }) {
@@ -67,7 +67,8 @@ function submit({setRoomID, roomName, userName, onClose}) {
     }
     addData(database, 'rooms/' , data).then((roomID) => {
         setRoomID(roomID)
-        updateRoomIDStatus(roomID)
+        updateSavedItemStatus('@roomID', roomID)
+        updateSavedItemStatus('@username', userName)
         addData(database, 'code-to-roomID', {[generateCode()] : roomID});
     });
     onClose();
