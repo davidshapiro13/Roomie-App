@@ -1,11 +1,12 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, TextInput, Animated, Button, RefreshControl } from 'react-native';
+import React, { useRef, useState, useEffect, act } from 'react';
+import { View, Text, TextInput, Animated, Button, RefreshControl, Easing } from 'react-native';
 import { styles } from './Styles'
 import PieChart from 'react-native-pie-chart';
-import { pieChartColors } from './General';
+import { pieChartColors, FULL_ROTATION } from './General';
 import { updateData, database, getSavedItem, getDataFromDoc } from './Database';
 import { ScrollView } from 'react-native-gesture-handler';
 import { deleteField } from 'firebase/firestore';
+import { Svg, Polygon } from 'react-native-svg';
 
 export default function WheelView( { roomID }) {
     const widthAndHeight = 250
@@ -17,7 +18,10 @@ export default function WheelView( { roomID }) {
 
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [errorMessage, setErrorMessage] = useState("")
+    const [totalRotation, setTotalRotation] = useState(0)
     const [endDegrees, setEndDegrees] = useState("0")
+    const [startDegrees, setStartDegrees] = useState("0")
+    const [winner, setWinner] = useState("WINNER")
 
     /**
      * Load goals on initial load of screen
@@ -27,7 +31,10 @@ export default function WheelView( { roomID }) {
             await load()
         }
         loadUseEffect()
+        clear()
     }, [] )
+
+
 
     const [series, updateSeries] = useState([
         { value: size, color: '#fbd203'},
@@ -38,17 +45,29 @@ export default function WheelView( { roomID }) {
         load()
         spinValue.setValue(0)
         let spinAmount = Math.floor(Math.random() * 360 + 360)
-        setEndDegrees(spinAmount)
+        let newRotation //Updated rotation
+
+        setTotalRotation(prevRotation => {
+            newRotation = prevRotation + spinAmount
+            setEndDegrees(spinAmount + startDegrees)
+            return newRotation
+        })
+
         Animated.timing(spinValue, {
             toValue: 1,
-            duration: 10000,
+            duration: 2000,
+            easing: Easing.out(Easing.quad),
             useNativeDriver: true
-        }).start()
+        }).start( () => {
+            setStartDegrees(prevStart => prevStart + spinAmount)
+            const newWinner = getWinner(newRotation)
+            setWinner(newWinner)
+        })
     }
 
     const spin = spinValue.interpolate({
         inputRange: [0, 1],
-        outputRange: ["0deg", `${endDegrees}deg`]
+        outputRange: [`${startDegrees}deg`, `${endDegrees}deg`]
     })
 
     /**
@@ -87,15 +106,21 @@ export default function WheelView( { roomID }) {
     }
 
     async function submit(roomID, movieName) {
-        try {
-            const username = await getSavedItem('@username')
-            const data = {[`movies.${username}`] : movieName}
-            const _ = await updateData(database, 'rooms/' + roomID, data)
-            await load()
+        if (proper(movieName)) {
+            try {
+                const username = await getSavedItem('@username')
+                const data = {[`movies.${username}`] : movieName}
+                const _ = await updateData(database, 'rooms/' + roomID, data)
+                await load()
+            }
+            catch (error) {
+                console.log("Error " + error)
+                throw error
+            }
+            setErrorMessage("")
         }
-        catch (error) {
-            console.log("Error " + error)
-            throw error
+        else {
+            setErrorMessage("Movie name isn't recognized")
         }
     }
 
@@ -106,7 +131,7 @@ export default function WheelView( { roomID }) {
      */
     function format(original, username) {
             let result = []
-            const array = Object.entries(original)
+            const array = Object.entries(original).sort()
             array.forEach( (item, i) => {
                if (username == item[0]) {
                     movieNameChanged(item[1])
@@ -114,7 +139,7 @@ export default function WheelView( { roomID }) {
                const pieSlice = { value: 1, color: pieChartColors[i % pieChartColors.length], label: { text: item[1], fontWeight: 'bold' } }
                result.push(pieSlice)
             })
-            return result.sort((item1, item2) => item1.label.text.localeCompare(item2.label.text))
+            return result
         }
 
     /**
@@ -135,20 +160,65 @@ export default function WheelView( { roomID }) {
         }
     }
 
+    function getWinner(rotation) {
+        const sliceSize = FULL_ROTATION / series.length
+        const actualRotation = rotation % FULL_ROTATION
+        const reverseRotation = FULL_ROTATION - actualRotation
+        console.log(reverseRotation)
+        for (let i = 0; i < series.length; i++) {
+            const lower = sliceSize * i
+            const lowerBounded = reverseRotation >= lower
+            const upperBounded = reverseRotation < sliceSize * (i + 1)
+            if (upperBounded && lowerBounded) {
+                //Go backwards to account for spin direction
+                return series[i].label.text
+            }
+        }
+        return "ERROR"
+    }
+
+    /**
+     * Checks if proper format
+     * @param {*} movieName - name of movie
+     * @returns true if proper format; false otherwise
+     */
+    function proper(movieName) {
+        if (movieName == "" || movieName == null)
+        {
+            return false
+        }
+        return true
+    }
+
+    function clear() {
+        setTotalRotation(0)
+        setStartDegrees(0)
+        setEndDegrees(0)
+    }
+
     return (
         <View style={styles.container}>
             <ScrollView refreshControl={
                     <RefreshControl
                         refreshing={isRefreshing}
-                        onRefresh={load}   
-                    /> }>
+                        onRefresh={() => {
+                            load()
+                            clear
+                        }}   
+                    />
+            }>
                 <Text>Add Your Movie</Text>
                 <TextInput style={styles.input}
                     onChangeText={movieNameChanged}
                     value={movieName}
                 />
                 <Button title="Submit" onPress={() => submit(roomID, movieName)} />
-
+                <Text style={styles.error}>{errorMessage}</Text>
+                <View style={styles.pointer}>
+                    <Svg  height="50" width="25">
+                        <Polygon points="0,0 25,0 12.5,50" fill="blue" />
+                    </Svg>
+                </View>
                 <Animated.View style={[styles.pieContainer, { transform: [{ rotate: spin }] }]}>
                     <PieChart widthAndHeight={widthAndHeight} series={series}/>
                 </Animated.View>
@@ -157,6 +227,11 @@ export default function WheelView( { roomID }) {
                 <Text>Your Movie Is</Text>
                 <Text>{movieName}</Text>
                 <Button title="Removie" onPress={() => deleteMovie(roomID)}/>
+                <Text>Winner: {winner}</Text>
+                <Button title="clear" onPress={() => {
+                    clear()
+                }}
+            />
             </ScrollView>
         </View>
     )

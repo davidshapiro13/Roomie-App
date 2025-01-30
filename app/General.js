@@ -8,3 +8,5 @@ export const pieChartColors = [
     '#D1C4E9',
     '#B2EBF2',
 ]
+
+export const FULL_ROTATION = 360

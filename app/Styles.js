@@ -44,4 +44,9 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
       },
+    pointer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    }
   });
