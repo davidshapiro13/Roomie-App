@@ -16,6 +16,7 @@
     "@react-native-community/checkbox": "^0.5.17",
     "@react-native-firebase/app": "^21.6.1",
     "@react-native-firebase/firestore": "^21.6.1",
+    "@react-native-picker/picker": "^2.9.0",
     "@react-native-toolkit/triangle": "^0.0.1",
     "@react-native/metro-config": "^0.76.5",
     "@react-navigation/bottom-tabs": "^7.2.0",

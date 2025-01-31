@@ -2,6 +2,7 @@ import { Text, View, Button, TextInput } from 'react-native';
 import React, {useState} from 'react';
 import { database, addData, generateCode, updateRoomIDStatus, updateSavedItemStatus } from './Database';
 import { styles } from './Styles';
+import { DEFAULT_CHORE_LIST } from './General';
 
 export default function CreateRoomView( { setRoomID, onClose }) {
 
@@ -63,7 +64,8 @@ export default function CreateRoomView( { setRoomID, onClose }) {
 function submit({setRoomID, roomName, userName, onClose}) {
     const data = {
         "room_name" : roomName,
-        "members" : {[userName] : "FILL IN LATER"}
+        "members" : {[userName] : "FILL IN LATER"},
+        "choreList": DEFAULT_CHORE_LIST
     }
     addData(database, 'rooms/' , data).then((roomID) => {
         setRoomID(roomID)

@@ -15,7 +15,9 @@ export default function MainView( { roomID, setRoomID } ) {
                 <Tab.Screen name="Home">
                     {() => <HomeView roomID={roomID} setRoomID={setRoomID}/>}
                 </Tab.Screen>
-                <Tab.Screen name="Chores" component={ChoreView}/>
+                <Tab.Screen name="Chores">
+                    { () => <ChoreView roomID={roomID}/>}
+                </Tab.Screen>
                 <Tab.Screen name="Goals">
                     { () => <GoalView roomID={roomID}/>}
                 </Tab.Screen>

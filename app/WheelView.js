@@ -24,7 +24,7 @@ export default function WheelView( { roomID }) {
     const [winner, setWinner] = useState("WINNER")
 
     /**
-     * Load goals on initial load of screen
+     * Load movies on initial load of screen
      */
     useEffect( () => {
         const loadUseEffect = async () => {
@@ -101,6 +101,7 @@ export default function WheelView( { roomID }) {
         }
         else {
             const movies = data.movies
+            console.log(movies)
             return movies
         }
     }
