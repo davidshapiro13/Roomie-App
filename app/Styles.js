@@ -17,6 +17,9 @@ export const styles = StyleSheet.create({
         color: 'red'
     },
 
+    textBox: {
+        paddingTop: 100
+    },
     //Goal Item
     checkboxContainer: {
         flexDirection: 'row',

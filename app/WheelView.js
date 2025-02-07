@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, act } from 'react';
 import { View, Text, TextInput, Animated, Button, RefreshControl, Easing } from 'react-native';
 import { styles } from './Styles'
 import PieChart from 'react-native-pie-chart';
-import { pieChartColors, FULL_ROTATION } from './General';
+import { pieChartColors, FULL_ROTATION, proper } from './General';
 import { updateData, database, getSavedItem, getDataFromDoc } from './Database';
 import { ScrollView } from 'react-native-gesture-handler';
 import { deleteField } from 'firebase/firestore';
@@ -176,19 +176,6 @@ export default function WheelView( { roomID }) {
             }
         }
         return "ERROR"
-    }
-
-    /**
-     * Checks if proper format
-     * @param {*} movieName - name of movie
-     * @returns true if proper format; false otherwise
-     */
-    function proper(movieName) {
-        if (movieName == "" || movieName == null)
-        {
-            return false
-        }
-        return true
     }
 
     function clear() {

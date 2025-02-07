@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, doc, remove, ref } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { firebaseConfig } from '../secret';
 
@@ -81,6 +81,13 @@ export async function getDataFromDoc(database, path, docID) {
     console.log("Error: ", error)
     return []
   }
+}
+
+export async function deleteItem(docID, path, dataObject) {
+  console.log("YES")
+  const dataDoc = doc(database, path)
+  await updateDoc(dataDoc, dataObject)
+  console.log( "NO")
 }
 
 
