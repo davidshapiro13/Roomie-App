@@ -64,7 +64,7 @@ export default function CreateRoomView( { setRoomID, onClose }) {
 function submit({setRoomID, roomName, userName, onClose}) {
     const data = {
         "room_name" : roomName,
-        "members" : {[userName] : "FILL IN LATER"},
+        "members" : {[userName] : 0},
         "choreList": DEFAULT_CHORE_LIST
     }
     addData(database, 'rooms/' , data).then((roomID) => {

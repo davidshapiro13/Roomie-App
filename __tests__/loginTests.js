@@ -1,9 +1,6 @@
 // Disabled because not working right and not very useful since not testing Firebase anyway
 // Dec 21 2024
-
-
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { addData, updateData, getData, getDataFromDoc, updateRoomIDStatus, getSavedRoomID, getSavedItem } from "../app/Database"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 

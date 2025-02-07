@@ -68,7 +68,7 @@ export default function JoinRoomView( { setRoomID, onClose }) {
             }
             else if (roomID != "ERROR") {
                 const memberData = {
-                    [`members.${userName}`] : "FILL IN LATER"
+                    [`members.${userName}`] : 0
                 }
                 setErrorMessage("")
                 setRoomID(roomID)
