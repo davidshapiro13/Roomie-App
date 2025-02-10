@@ -1,9 +1,9 @@
-import { Text, View, Button, Modal, SectionList, TouchableOpacity, TextInput } from 'react-native';
+import { Text, View, Button, Modal, SectionList, TouchableOpacity, TextInput, RefreshControl } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import { styles } from './Styles'
 import { updateData, database, getDataFromDoc } from './Database';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { freqToName, proper } from './General';
+import { freqToName, NEVER, proper } from './General';
 import { deleteField } from 'firebase/firestore';
 import IndividualChoreSetting from './IndividualChoreSettingView';
 
@@ -62,6 +62,7 @@ export default function ChoreSettingsView( {roomID, onClose }) {
             <Button title="Add Chore" onPress={() => {
                 setChoreModalVisible(true)
                 setEditedChoreTitle("")
+                setEditedChoreFreq(NEVER)
                 setCurrentSection(sectionName)
             }}/>
         </View>
@@ -72,10 +73,10 @@ export default function ChoreSettingsView( {roomID, onClose }) {
             <View style={styles.checkboxContainer}>
                 <Text>{title}</Text>
                 <Button title={freqToName[freq]} onPress={() => {
-                    setChoreModalVisible(true)
                     setCurrentSection(sectionName)
                     setEditedChoreTitle(title)  
-                    setEditedChoreFreq(freq)                
+                    setEditedChoreFreq(freq)
+                    setChoreModalVisible(true)           
                 }}/>
             </View>
         )
@@ -107,6 +108,11 @@ export default function ChoreSettingsView( {roomID, onClose }) {
                         <SectionItem sectionName={title}/>
                     </Swipeable>
                 )}
+                refreshControl={
+                <RefreshControl
+                      refreshing={isRefreshing}
+                      onRefresh={load}   
+                />}
             />
 
             <Modal animationType="slide"
@@ -130,12 +136,15 @@ export default function ChoreSettingsView( {roomID, onClose }) {
      * @param {*} choreName - name of the chore
      */
     async function deleteChoreItem(roomID, sectionName, choreName=null) {
+        
         try {
+            let data
             if (choreName == null) {
-                const data = {[`choreList.${sectionName}`] : deleteField()}
+                console.log(choreName)
+                data = {[`choreList.${sectionName}`] : deleteField()}
             }
             else {
-                const data = {[`choreList.${sectionName}.${choreName}`] : deleteField()}
+                data = {[`choreList.${sectionName}.${choreName}`] : deleteField()}
             }
             const _ = await updateData(database, 'rooms/' + roomID, data)
             await load()
@@ -157,6 +166,7 @@ export default function ChoreSettingsView( {roomID, onClose }) {
             return false
         }
         let proper_format = format(newChores)
+        console.log(proper_format)
         updateChores(proper_format)
         setIsRefreshing(false)
         return true

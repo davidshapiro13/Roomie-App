@@ -13,13 +13,15 @@ export const FULL_ROTATION = 360
 
 export const NEVER = "Never"
 export const ONCE_A_WEEK = "Once a Week"
-export const TWICE_A_MONTH = "Twice a Week"
+export const TWICE_A_MONTH = "Twice a Month"
+export const THRICE_A_MONTH = "Thrice a Month"
 export const ONCE_A_MONTH = "Once a Month"
 
 export const freqToName = {
     0: NEVER,
     1: ONCE_A_WEEK,
     2: TWICE_A_MONTH,
+    3: THRICE_A_MONTH,
     4: ONCE_A_MONTH
 }
 
@@ -47,4 +49,31 @@ export function proper(itemName) {
         return false
     }
     return true
+}
+
+export function getCurrentWeek(shift=0) {
+    const today = new Date()
+    today.setDate(today.getDate() + shift)
+    const startDay = new Date(today)
+    const endDay = new Date(today)
+    startDay.setDate(today.getDate() - today.getDay() + 1) //Mon - Sun
+    endDay.setDate(today.getDate() + (7 - today.getDay()))
+    
+    const formatDate = (day) => {
+        console.log(day.getMonth())
+        const mm = String((day.getMonth() + 1)).padStart(2, "0")
+        const dd = String(day.getDate()).padStart(2, "0")
+        const yy = String(day.getFullYear()).slice(-2)
+        return `${mm}/${dd}/${yy}`
+    }
+    return `${formatDate(startDay)} - ${formatDate(endDay)}`
+}
+
+export function getUpcomingWeeks(numWeeks=5) {
+    let weekDates = []
+    for (let i=0; i<numWeeks; i++) {
+        const dates = getCurrentWeek(i * 7)
+        weekDates.push(dates)
+    }
+    return weekDates
 }

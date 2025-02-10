@@ -101,7 +101,6 @@ export default function WheelView( { roomID }) {
         }
         else {
             const movies = data.movies
-            console.log(movies)
             return movies
         }
     }
@@ -115,7 +114,6 @@ export default function WheelView( { roomID }) {
                 await load()
             }
             catch (error) {
-                console.log("Error " + error)
                 throw error
             }
             setErrorMessage("")
@@ -165,7 +163,6 @@ export default function WheelView( { roomID }) {
         const sliceSize = FULL_ROTATION / series.length
         const actualRotation = rotation % FULL_ROTATION
         const reverseRotation = FULL_ROTATION - actualRotation
-        console.log(reverseRotation)
         for (let i = 0; i < series.length; i++) {
             const lower = sliceSize * i
             const lowerBounded = reverseRotation >= lower
