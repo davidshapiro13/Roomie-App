@@ -1,14 +1,16 @@
-import { Text, View, Button, Modal, SectionList, RefreshControl } from 'react-native';
+import { Text, View, Button, Modal, SectionList, FlatList, RefreshControl } from 'react-native';
 import {styles} from './Styles';
 import React, {useState, useEffect} from 'react';
-import { database, getDataFromDoc } from './Database';
+import { database, getDataFromDoc, getSavedItem } from './Database';
 import ChoreSettingsView from './ChoreSettingsView';
-import { getCurrentWeek, getUpcomingWeeks } from './General';
+import { getUpcomingWeeks, CALENDAR_WEEK_NUM } from './General';
+import ChoreItem from './ChoreItem';
 
 export default function ChoreView( { roomID} ) {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [settingsOn, setSettingsOn] = useState(false)
     const [choreList, setChoreList] = useState([])
+    const [userChoreList, setUserChoreList] = useState([])
 
     /**
     * Load chores on initial load of screen
@@ -18,17 +20,41 @@ export default function ChoreView( { roomID} ) {
         await load()
       }
       loadUseEffect()
-    }, [] )
+    }, [])
 
+    const renderItem = ( {item} ) => (
+      <ChoreItem section={item.section} title={item.title} completed={item.completed} roomID={roomID} load={load}/>
+    )
 
     return (
         <View style={styles.container}>
+            <Text>Your Chores:</Text>
+            <FlatList
+                data={userChoreList} renderItem={renderItem}
+                style={styles.list}
+                keyExtractor={item => item.id}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={load}   
+                    /> }
+            />
             <Text>Chore List</Text>
             <SectionList style={{padding: 100}} sections={choreList}
-                renderItem={ ( {item, section } ) => 
-                  (
-                    <Text>{item.chore} - {item.worker}</Text>
-                  )
+                renderItem={ ( {item, section } ) => {
+                  const isFirstSection = section == choreList[0]
+                  if (item.completed && isFirstSection) {
+                    return (
+                      <Text>{item.chore} - {item.worker} - ✅</Text>
+                    )
+                  }
+                  else {
+                    return (
+                      <Text>{item.chore} - {item.worker}</Text>
+                    )
+                  }
+                  
+                }
                 }
                 renderSectionHeader={({section: {title}}) => (
                   <Text style={styles.header}>{title}</Text>
@@ -47,7 +73,10 @@ export default function ChoreView( { roomID} ) {
                    onRequestClose={() => {
                     setSettingsOn(false)
                     load()}}>
-                <ChoreSettingsView roomID={roomID} onClose={() => setSettingsOn(false)}/>
+                <ChoreSettingsView roomID={roomID} onClose={() => {
+                  load()
+                  setSettingsOn(false)
+                }}/>
             </Modal>    
         </View>
     )
@@ -55,7 +84,12 @@ export default function ChoreView( { roomID} ) {
     async function load() {
       setIsRefreshing(true)
       const items = await getChoreWeeksList(database, roomID)
-      const formattedItems = format(items)
+      console.log(items)
+      const startDate = await getStartDateFromStorage(database, roomID)
+      const formattedItems = format(items, startDate)
+      const thisWeek = await getUserChores(formattedItems[0])
+      console.log(thisWeek)
+      setUserChoreList(thisWeek)
       setChoreList(formattedItems)
       setIsRefreshing(false)
     }
@@ -65,12 +99,12 @@ export default function ChoreView( { roomID} ) {
      * @param {*} original - original data
      * @returns sorted format
      */
-      function format(original) {
+      function format(original, startDate) {
         let result = []
         const array = Object.entries(original)
-        const weekDates = getUpcomingWeeks(array.length)
+        const weekDates = getUpcomingWeeks(startDate)
 
-        array.forEach( (week, index) => {
+        array.slice(0, CALENDAR_WEEK_NUM).forEach( (week, index) => {
           const uniqueID = Date.now().toString() + Math.random()
           const map = {id: uniqueID, title: weekDates[index], data: week[1]}
           result.push(map)
@@ -79,10 +113,22 @@ export default function ChoreView( { roomID} ) {
       }
 }
 
+async function getUserChores(week) {
+  let userChores = []
+  const weeklyChores = week.data
+  const username = await getSavedItem('@username')
+  weeklyChores.forEach( chore => {
+    if (chore.worker == username) {
+      userChores.push({title: chore.chore, section: chore.section, completed: chore.completed})
+    }
+  })
+  return userChores
+}
 
 
 
-async function getChoreWeeksList(database, roomID, numWeeks = 5) {
+
+async function getChoreWeeksList(database, roomID, numWeeks = 20) {
   let nameList = await getNameList(database, roomID)
   let choreList = await getChoreList(database, roomID)
   let namePoints = []
@@ -98,9 +144,11 @@ async function getChoreWeeksList(database, roomID, numWeeks = 5) {
   for (let weekNum = 0; weekNum < numWeeks; weekNum++) {
     let week_chores = []
     const neededChores = choreList.filter( chore => weekNum % chore.points == 0) 
-
+    console.log(neededChores)
     for (let choreNum = 0; choreNum < neededChores.length; choreNum++) {
       week_chores.push( {chore: neededChores[choreNum].title,
+                         completed: neededChores[choreNum].completed,
+                         section: neededChores[choreNum].sectionName,
                          worker: namePoints[0].name } )
       namePoints[0].points += neededChores[choreNum].points
       namePoints.sort((item1, item2) => item1.points - item2.points)
@@ -120,11 +168,17 @@ async function getNameList(database, roomID) {
 async function getChoreList(database, roomID) {
   const data = await getDataFromDoc(database, 'rooms', roomID)
   const array = Object.entries(data.choreList)
+  console.log(array)
   let chore_list = []
   array.forEach( section => {
     const chores = Object.entries(section[1])
-    const chore_array = chores.map( chore => ( {title: chore[0], points: chore[1]} ))
+    const chore_array = chores.map( chore => ( {sectionName: section[0], title: chore[0], points: chore[1].points, completed: chore[1].completed} ))
     chore_list.push(...chore_array)
   })
   return chore_list
+}
+
+async function getStartDateFromStorage(database, roomID) {
+  const data = await getDataFromDoc(database, 'rooms', roomID)
+  return (data.chore_start_date).toDate()
 }

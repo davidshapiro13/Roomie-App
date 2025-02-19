@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export const pieChartColors = [
     '#9BBFE0',
     '#E8A09A',
@@ -25,16 +27,20 @@ export const freqToName = {
     4: ONCE_A_MONTH
 }
 
+export const DEFAULT_CHORE_VAL = {
+    points: 0,
+    completed: false
+}
 export const DEFAULT_CHORE_LIST = {
     "Living Room": {
-        "Tidy": 0,
-        "Sweep": 0,
-        "Clean": 0
+        "Tidy": DEFAULT_CHORE_VAL,
+        "Sweep": DEFAULT_CHORE_VAL,
+        "Clean": DEFAULT_CHORE_VAL
     },
     "Kitchen" : {
-        "Trash": 0,
-        "Stove": 0,
-        "Microwave": 0
+        "Trash": DEFAULT_CHORE_VAL,
+        "Stove": DEFAULT_CHORE_VAL,
+        "Microwave": DEFAULT_CHORE_VAL,
     }
 }
 
@@ -51,13 +57,16 @@ export function proper(itemName) {
     return true
 }
 
-export function getCurrentWeek(shift=0) {
-    const today = new Date()
+export function getCurrentWeek(startDate, shift=0) {
+    console.log("HERE ", startDate)
+    const today = new Date(startDate)
+    console.log(today)
     today.setDate(today.getDate() + shift)
     const startDay = new Date(today)
     const endDay = new Date(today)
     startDay.setDate(today.getDate() - today.getDay() + 1) //Mon - Sun
     endDay.setDate(today.getDate() + (7 - today.getDay()))
+  
     
     const formatDate = (day) => {
         console.log(day.getMonth())
@@ -69,11 +78,18 @@ export function getCurrentWeek(shift=0) {
     return `${formatDate(startDay)} - ${formatDate(endDay)}`
 }
 
-export function getUpcomingWeeks(numWeeks=5) {
+export function getUpcomingWeeks(startDate, numWeeks=CALENDAR_WEEK_NUM) {
     let weekDates = []
     for (let i=0; i<numWeeks; i++) {
-        const dates = getCurrentWeek(i * 7)
+        const dates = getCurrentWeek(startDate, i * 7)
         weekDates.push(dates)
     }
     return weekDates
 }
+
+export function getStartDate() {
+    const today = new Date()
+    return Timestamp.fromDate(today)
+}
+
+export const CALENDAR_WEEK_NUM = 5

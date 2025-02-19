@@ -4,7 +4,7 @@ import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { database, updateData } from './Database';
 import { styles } from './Styles';
 
-export default function GoalItem( {title, completed, roomID}) {
+export default function ChoreItem( {section, title, completed, roomID, load}) {
 
     const [isSelected, setSelected] = useState(completed)
 
@@ -17,7 +17,8 @@ export default function GoalItem( {title, completed, roomID}) {
                 style={styles.checkbox}
                 onPress={(newState) => {
                     setSelected(newState);
-                    checkClicked(title, newState, roomID)
+                    checkClicked(section, title, newState, roomID)
+                    load()
                     }}
                 size={25}
                 fillColor="#00bcd4"
@@ -36,7 +37,7 @@ export default function GoalItem( {title, completed, roomID}) {
  * @param {*} newState - new state (done or not) of goal
  * @param {*} roomID - roomID where goal resides
  */
-async function checkClicked(title, newState, roomID) {
-    const data = {[`goals.${title}`] : newState}
+async function checkClicked(section, title, newState, roomID) {
+    const data = {[`choreList.${section}.${title}.completed`] : newState}
     const _ = await updateData(database, 'rooms/' + roomID, data)
 }

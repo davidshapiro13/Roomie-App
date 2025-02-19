@@ -3,7 +3,7 @@ import React, {useState, useEffect} from 'react';
 import { styles } from './Styles'
 import { updateData, database, getDataFromDoc } from './Database';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { freqToName, NEVER, proper } from './General';
+import { freqToName, getStartDate, NEVER, proper } from './General';
 import { deleteField } from 'firebase/firestore';
 import IndividualChoreSetting from './IndividualChoreSettingView';
 
@@ -123,7 +123,10 @@ export default function ChoreSettingsView( {roomID, onClose }) {
                 <IndividualChoreSetting sectionName={currentSection} title={editedChoreTitle} freq={editedChoreFreq} addChore={addChore}/>
             </Modal>    
 
-            <Button title="Save" onPress={async () => onClose()}/>
+            <Button title="Save" onPress={async () => {
+                const data = {["chore_start_date"] : getStartDate()}
+                const _ = await updateData(database, 'rooms/' + roomID, data)
+                onClose()} }/>
         
         </View>
      
@@ -166,7 +169,6 @@ export default function ChoreSettingsView( {roomID, onClose }) {
             return false
         }
         let proper_format = format(newChores)
-        console.log(proper_format)
         updateChores(proper_format)
         setIsRefreshing(false)
         return true
@@ -200,8 +202,9 @@ export default function ChoreSettingsView( {roomID, onClose }) {
         array.forEach( (category) => {
             const choresAsArray = Object.entries(category[1]).sort()
             let dataList = []
+            console.log(choresAsArray)
             choresAsArray.forEach( (item) => {
-               dataList.push({job: item[0], freq: item[1]})
+               dataList.push({job: item[0], freq: item[1].points})
             })
             const newSection = {title: category[0], data: dataList}
             result.push(newSection)
@@ -241,7 +244,8 @@ export default function ChoreSettingsView( {roomID, onClose }) {
     async function addChore(sectionName, choreName, freq) {
         if (proper(choreName)) {
             try {
-                const data = {[`choreList.${sectionName}.${choreName}`] : Number(freq)}
+                const newChoreVal = {points: Number(freq), completed: false}
+                const data = {[`choreList.${sectionName}.${choreName}`] : newChoreVal}
                 const _ = await updateData(database, 'rooms/' + roomID, data)
                 await load()
             }
