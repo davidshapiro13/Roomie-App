@@ -1,0 +1,27 @@
+name: Check Chores & Send Notifications
+
+on:
+  schedule:
+    - cron: "0 20 * * 0"  # Runs every Sunday at 8 PM UTC
+
+jobs:
+  check-chores:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install firebase-admin node-fetch
+
+      - name: Run Chore Check
+        run: node app/background.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
