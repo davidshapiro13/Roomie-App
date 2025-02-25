@@ -1,7 +1,7 @@
 import { Text, View, Button, Modal, SectionList, FlatList, RefreshControl } from 'react-native';
 import {styles} from './Styles';
 import React, {useState, useEffect} from 'react';
-import { database, getDataFromDoc, getSavedItem } from './Database';
+import { database, getDataFromDoc, getSavedItem, updateData } from './Database';
 import ChoreSettingsView from './ChoreSettingsView';
 import { getUpcomingWeeks, CALENDAR_WEEK_NUM } from './General';
 import ChoreItem from './ChoreItem';
@@ -88,7 +88,7 @@ export default function ChoreView( { roomID} ) {
       const startDate = await getStartDateFromStorage(database, roomID)
       const formattedItems = format(items, startDate)
       const thisWeek = await getUserChores(formattedItems[0])
-      console.log(thisWeek)
+      await assignFirebaseChores(thisWeek, roomID)
       setUserChoreList(thisWeek)
       setChoreList(formattedItems)
       setIsRefreshing(false)
@@ -119,12 +119,21 @@ async function getUserChores(week) {
   const username = await getSavedItem('@username')
   weeklyChores.forEach( chore => {
     if (chore.worker == username) {
-      userChores.push({title: chore.chore, section: chore.section, completed: chore.completed})
+      const uniqueID = Date.now().toString() + Math.random()
+      userChores.push({id: uniqueID, title: chore.chore, section: chore.section, completed: chore.completed})
     }
   })
   return userChores
 }
 
+async function assignFirebaseChores(week, roomID) {
+  const username = await getSavedItem('@username')
+  week.forEach(async task => {
+    console.log("HHHH")
+    const data = {[`choreList.${task.section}.${task.title}.worker`] : username}
+    const _ = await updateData(database, 'rooms/' + roomID, data)
+  })
+}
 
 
 

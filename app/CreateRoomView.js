@@ -73,6 +73,7 @@ function submit({setRoomID, roomName, userName, onClose}) {
     addData(database, 'rooms/' , data).then((roomID) => {
         setRoomID(roomID)
         updateSavedItemStatus('@roomID', roomID)
+        updateRoomIDStatus('@admin', true)
         updateSavedItemStatus('@username', userName)
         addData(database, 'code-to-roomID', {[generateCode()] : roomID});
     });

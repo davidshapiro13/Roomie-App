@@ -73,6 +73,7 @@ export default function JoinRoomView( { setRoomID, onClose }) {
                 setErrorMessage("")
                 setRoomID(roomID)
                 updateSavedItemStatus('@roomID', roomID)
+                updateRoomIDStatus('@admin', false)
                 updateSavedItemStatus('@username', userName)
                 updateData(database, 'rooms/' + roomID, memberData)
                 onClose()

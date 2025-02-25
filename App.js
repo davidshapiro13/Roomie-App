@@ -5,7 +5,6 @@ import MainView from './app/MainView';
 import { getSavedItem, getSavedRoomID } from './app/Database';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { styles } from './app/Styles'
 
 function logout(loggedIn) {
   loggedIn = false
