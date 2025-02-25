@@ -3,7 +3,7 @@ name: Check Chores & Send Notifications
 on:
   schedule:
     - cron: "0 20 * * 0"  # Runs every Sunday at 8 PM UTC
-
+  workflow_dispatch:
 jobs:
   check-chores:
     runs-on: ubuntu-latest
